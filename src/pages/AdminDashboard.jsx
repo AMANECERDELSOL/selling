@@ -10,6 +10,8 @@ export default function AdminDashboard() {
     const [sellers, setSellers] = useState([]);
     const [loading, setLoading] = useState(false);
 
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
     // Product form
     const [showProductForm, setShowProductForm] = useState(false);
     const [productForm, setProductForm] = useState({
@@ -31,7 +33,7 @@ export default function AdminDashboard() {
     const fetchAnalytics = async () => {
         setLoading(true);
         try {
-            const response = await fetch('/api/admin/analytics', {
+            const response = await fetch(`${API_URL}/api/admin/analytics`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
@@ -46,7 +48,7 @@ export default function AdminDashboard() {
     const fetchProducts = async () => {
         setLoading(true);
         try {
-            const response = await fetch('/api/products');
+            const response = await fetch(`${API_URL}/api/products`);
             const data = await response.json();
             setProducts(data.products);
         } catch (error) {
@@ -58,7 +60,7 @@ export default function AdminDashboard() {
 
     const fetchCategories = async () => {
         try {
-            const response = await fetch('/api/products/categories/all');
+            const response = await fetch(`${API_URL}/api/products/categories/all`);
             const data = await response.json();
             setCategories(data.categories);
         } catch (error) {
@@ -69,7 +71,7 @@ export default function AdminDashboard() {
     const fetchSellers = async () => {
         setLoading(true);
         try {
-            const response = await fetch('/api/admin/sellers', {
+            const response = await fetch(`${API_URL}/api/admin/sellers`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
@@ -84,7 +86,7 @@ export default function AdminDashboard() {
     const handleCreateProduct = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('/api/products', {
+            const response = await fetch(`${API_URL}/api/products`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -110,7 +112,7 @@ export default function AdminDashboard() {
     const handleCreateSeller = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('/api/admin/sellers', {
+            const response = await fetch(`${API_URL}/api/admin/sellers`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -137,7 +139,7 @@ export default function AdminDashboard() {
         if (!confirm('¿Estás seguro de eliminar este producto?')) return;
 
         try {
-            const response = await fetch(`/api/products/${id}`, {
+            const response = await fetch(`${API_URL}/api/products/${id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
