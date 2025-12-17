@@ -1,0 +1,13 @@
+{
+    "name": "cashout-root",
+    "version": "1.0.0",
+    "private": true,
+    "workspaces": [
+        "client",
+        "server"
+    ],
+    "scripts": {
+        "build": "npm run build -w ecommerce-frontend",
+        "install:all": "npm install"
+    }
+}
