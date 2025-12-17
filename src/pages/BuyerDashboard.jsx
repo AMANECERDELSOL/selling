@@ -9,6 +9,8 @@ export default function BuyerDashboard() {
     const [cart, setCart] = useState([]);
     const [showCart, setShowCart] = useState(false);
     const [showCheckout, setShowCheckout] = useState(false);
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [lastOrder, setLastOrder] = useState(null);
     const [loading, setLoading] = useState(true);
 
     // Checkout form
@@ -108,10 +110,11 @@ export default function BuyerDashboard() {
             const data = await response.json();
 
             if (response.ok) {
-                alert(`¡Orden creada exitosamente! Total: $${getTotalPrice().toFixed(2)}\n\nPor favor realiza el pago y sube tu comprobante.`);
+                setLastOrder({ id: data.order_id, total: getTotalPrice() });
                 setCart([]);
                 setShowCart(false);
                 setShowCheckout(false);
+                setShowPaymentModal(true); // Show payment instructions
                 // Reset form
                 setContactName('');
                 setContactEmail('');
@@ -387,6 +390,73 @@ export default function BuyerDashboard() {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Payment Instructions Modal */}
+            {showPaymentModal && lastOrder && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    background: 'rgba(0, 0, 0, 0.9)', zIndex: 3000,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    padding: 'var(--spacing-md)'
+                }} onClick={() => setShowPaymentModal(false)}>
+                    <div className="glass-card fade-in" onClick={(e) => e.stopPropagation()}
+                        style={{ width: '100%', maxWidth: '500px', textAlign: 'center' }}>
+
+                        <div style={{ fontSize: '3rem', marginBottom: 'var(--spacing-md)' }}>🎉</div>
+
+                        <h2 className="mb-md" style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--primary)' }}>
+                            ¡Orden Recibida!
+                        </h2>
+
+                        <p className="mb-lg" style={{ fontSize: '1.1rem' }}>
+                            Tu orden <strong>#{lastOrder.id}</strong> ha sido creada.
+                        </p>
+
+                        <div className="glass-card mb-lg" style={{ background: 'rgba(255,255,255,0.05)', textAlign: 'left' }}>
+                            <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: 'var(--spacing-md)', color: 'var(--text-secondary)' }}>
+                                Instrucciones de Pago:
+                            </h3>
+
+                            <div className="mb-md">
+                                <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '4px' }}>Monto a pagar:</label>
+                                <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--success)' }}>
+                                    ${lastOrder.total.toFixed(2)} USD
+                                </div>
+                            </div>
+
+                            <div className="mb-md">
+                                <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '4px' }}>Wallet Binance (USDT TRC20):</label>
+                                <div style={{
+                                    background: 'black', padding: '10px', borderRadius: '4px',
+                                    fontFamily: 'monospace', wordBreak: 'break-all', userSelect: 'all',
+                                    color: '#00ff00', fontSize: '1.1rem'
+                                }}>
+                                    TLNL5ETpr7YqtUi45rNLjFUyTm5sZksSxv
+                                </div>
+                                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+                                    *Asegúrate de usar la red TRON (TRC20)
+                                </p>
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '4px' }}>Siguiente Paso:</label>
+                                <p style={{ fontSize: '0.9rem', lineHeight: '1.4' }}>
+                                    Envía tu comprobante de pago y tu ID de orden a nuestro Telegram oficial para procesar tu entrega.
+                                </p>
+                                <a href="https://t.me/CashoutSupport" target="_blank" rel="noopener noreferrer"
+                                    className="btn btn-primary w-full mt-sm"
+                                    style={{ display: 'block', textAlign: 'center', textDecoration: 'none' }}>
+                                    ✈️ Contactar por Telegram
+                                </a>
+                            </div>
+                        </div>
+
+                        <button className="btn btn-secondary" onClick={() => setShowPaymentModal(false)}>
+                            Entendido, cerraré esta ventana
+                        </button>
                     </div>
                 </div>
             )}
