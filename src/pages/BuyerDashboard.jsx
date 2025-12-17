@@ -444,12 +444,12 @@ export default function BuyerDashboard() {
                             <div>
                                 <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '4px' }}>Siguiente Paso:</label>
                                 <p style={{ fontSize: '0.9rem', lineHeight: '1.4' }}>
-                                    Envía tu comprobante de pago y tu ID de orden a nuestro Telegram oficial para procesar tu entrega.
+                                    Envía tu comprobante de pago y tu ID de orden directamente <strong>a tu vendedor</strong> o a nuestro Telegram oficial.
                                 </p>
-                                <a href="https://t.me/CashoutSupport" target="_blank" rel="noopener noreferrer"
+                                <a href="https://t.me/PythonUserandC" target="_blank" rel="noopener noreferrer"
                                     className="btn btn-primary w-full mt-sm"
                                     style={{ display: 'block', textAlign: 'center', textDecoration: 'none' }}>
-                                    ✈️ Contactar por Telegram
+                                    ✈️ Contactar Soporte
                                 </a>
                             </div>
                         </div>
@@ -463,3 +463,5 @@ export default function BuyerDashboard() {
         </div>
     );
 }
+
+
