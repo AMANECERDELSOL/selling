@@ -21,6 +21,8 @@ export default function SellerDashboard() {
         category: 'joyeria'
     });
 
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
     useEffect(() => {
         fetchOrders();
         fetchProducts();
@@ -28,7 +30,7 @@ export default function SellerDashboard() {
 
     const fetchProducts = async () => {
         try {
-            const response = await fetch('/api/products', {
+            const response = await fetch(`${API_URL}/api/products`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -43,7 +45,7 @@ export default function SellerDashboard() {
     const fetchOrders = async () => {
         setLoading(true);
         try {
-            const response = await fetch('/api/orders', {
+            const response = await fetch(`${API_URL}/api/orders`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -67,7 +69,7 @@ export default function SellerDashboard() {
 
     const updateOrderStatus = async (orderId, newStatus) => {
         try {
-            const response = await fetch(`/api/orders/${orderId}/status`, {
+            const response = await fetch(`${API_URL}/api/orders/${orderId}/status`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -145,8 +147,8 @@ export default function SellerDashboard() {
 
         try {
             const url = editingProduct
-                ? `/api/products/${editingProduct.id}`
-                : '/api/products';
+                ? `${API_URL}/api/products/${editingProduct.id}`
+                : `${API_URL}/api/products`;
 
             const method = editingProduct ? 'PUT' : 'POST';
 
@@ -180,7 +182,7 @@ export default function SellerDashboard() {
         if (!confirm('¿Estás seguro de eliminar este producto?')) return;
 
         try {
-            const response = await fetch(`/api/products/${productId}`, {
+            const response = await fetch(`${API_URL}/api/products/${productId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
