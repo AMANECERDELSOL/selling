@@ -17,6 +17,8 @@ export default function BuyerDashboard() {
     const [contactPhone, setContactPhone] = useState('');
     const [contactInfo, setContactInfo] = useState('');
 
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
     useEffect(() => {
         fetchCategories();
         fetchProducts();
@@ -24,7 +26,7 @@ export default function BuyerDashboard() {
 
     const fetchCategories = async () => {
         try {
-            const response = await fetch('/api/products/categories/all');
+            const response = await fetch(`${API_URL}/api/products/categories/all`);
             const data = await response.json();
             setCategories(data.categories);
         } catch (error) {
@@ -36,8 +38,8 @@ export default function BuyerDashboard() {
         setLoading(true);
         try {
             const url = selectedCategory
-                ? `/api/products?category=${selectedCategory}`
-                : '/api/products';
+                ? `${API_URL}/api/products?category=${selectedCategory}`
+                : `${API_URL}/api/products`;
 
             const response = await fetch(url);
             const data = await response.json();
@@ -88,7 +90,7 @@ export default function BuyerDashboard() {
                 quantity: item.quantity
             }));
 
-            const response = await fetch('/api/orders', {
+            const response = await fetch(`${API_URL}/api/orders`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
