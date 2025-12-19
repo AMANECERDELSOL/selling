@@ -8,6 +8,7 @@ export default function AdminDashboard() {
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [sellers, setSellers] = useState([]);
+    const [pendingOrders, setPendingOrders] = useState([]);
     const [loading, setLoading] = useState(false);
 
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -28,6 +29,7 @@ export default function AdminDashboard() {
         if (activeTab === 'analytics') fetchAnalytics();
         else if (activeTab === 'products') { fetchProducts(); fetchCategories(); }
         else if (activeTab === 'sellers') fetchSellers();
+        else if (activeTab === 'orders') fetchPendingOrders();
     }, [activeTab]);
 
     const fetchAnalytics = async () => {
@@ -78,6 +80,23 @@ export default function AdminDashboard() {
             setSellers(data.sellers);
         } catch (error) {
             console.error('Error fetching sellers:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchPendingOrders = async () => {
+        setLoading(true);
+        try {
+            const response = await fetch(`${API_URL}/api/orders`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            // Filter only pending orders
+            const pending = data.orders.filter(order => order.status === 'pending');
+            setPendingOrders(pending);
+        } catch (error) {
+            console.error('Error fetching orders:', error);
         } finally {
             setLoading(false);
         }
@@ -171,6 +190,12 @@ export default function AdminDashboard() {
                         📊 Analíticas
                     </button>
                     <button
+                        className={`btn ${activeTab === 'orders' ? 'btn-primary' : 'btn-secondary'} btn-small`}
+                        onClick={() => setActiveTab('orders')}
+                    >
+                        ⏳ Ventas Pendientes
+                    </button>
+                    <button
                         className={`btn ${activeTab === 'products' ? 'btn-primary' : 'btn-secondary'} btn-small`}
                         onClick={() => setActiveTab('products')}
                     >
@@ -259,8 +284,14 @@ export default function AdminDashboard() {
                         <div className="grid grid-cols-1 gap-md">
                             {products.map(product => (
                                 <div key={product.id} className="card">
-                                    <div className="flex justify-between items-center" style={{ flexWrap: 'wrap', gap: 'var(--spacing-md)' }}>
-                                        <div>
+                                    <div className="flex gap-md items-center" style={{ flexWrap: 'wrap' }}>
+                                        {product.image_url && (
+                                            <img src={product.image_url} alt={product.name}
+                                                style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover' }}
+                                                onError={(e) => { e.target.onerror = null; e.target.src = 'https://i.postimg.cc/m2v6mXmX/placeholder.png'; }}
+                                            />
+                                        )}
+                                        <div style={{ flex: 1 }}>
                                             <h3 style={{ fontSize: '1.125rem', fontWeight: '600' }}>{product.name}</h3>
                                             <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>{product.category_name}</p>
                                         </div>
@@ -314,6 +345,53 @@ export default function AdminDashboard() {
                                         <label className="form-label">Stock</label>
                                         <input type="number" className="form-input"
                                             value={productForm.stock} onChange={(e) => setProductForm({ ...productForm, stock: e.target.value })} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">URL de Imagen (Postimage) *</label>
+                                        <input type="url" className="form-input" required
+                                            placeholder="https://i.postimg.cc/xxxxx/imagen.jpg"
+                                            value={productForm.image_url} onChange={(e) => setProductForm({ ...productForm, image_url: e.target.value })} />
+                                        <div style={{ marginTop: 'var(--spacing-xs)' }}>
+                                            <small style={{ color: 'var(--text-muted)', fontSize: '0.875rem', display: 'block' }}>
+                                                📷 Sube tu imagen a <a href="https://postimages.org/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)' }}>postimages.org</a> y pega el "Direct link"
+                                            </small>
+                                            <small style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'block', marginTop: '4px' }}>
+                                                💡 Tip: El link debe empezar con "https://i.postimg.cc/"
+                                            </small>
+                                        </div>
+                                        {productForm.image_url && (
+                                            <div className="mt-md" style={{
+                                                padding: 'var(--spacing-sm)',
+                                                background: 'var(--glass-bg)',
+                                                borderRadius: '12px',
+                                                border: '1px solid var(--glass-border)'
+                                            }}>
+                                                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: 'var(--spacing-xs)' }}>
+                                                    Vista previa:
+                                                </p>
+                                                <img src={productForm.image_url} alt="Preview"
+                                                    style={{
+                                                        width: '100%',
+                                                        maxHeight: '200px',
+                                                        borderRadius: '8px',
+                                                        objectFit: 'contain',
+                                                        backgroundColor: '#000'
+                                                    }}
+                                                    onError={(e) => {
+                                                        e.target.style.display = 'none';
+                                                        e.target.nextSibling.style.display = 'block';
+                                                    }} />
+                                                <p style={{
+                                                    display: 'none',
+                                                    color: 'var(--error)',
+                                                    fontSize: '0.875rem',
+                                                    textAlign: 'center',
+                                                    padding: 'var(--spacing-sm)'
+                                                }}>
+                                                    ⚠️ No se pudo cargar la imagen. Verifica el link.
+                                                </p>
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="form-group">
                                         <label className="form-label">Categoría *</label>
