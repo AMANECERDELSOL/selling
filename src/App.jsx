@@ -29,7 +29,6 @@ function HomePage() {
                 </p>
 
                 <p style={{ color: 'var(--text-muted)', marginBottom: 'var(--spacing-xl)', fontSize: '1.1rem' }}>
-                    Joyería • iPhones • Teléfonos • Electrónica
                 </p>
 
                 <div className="flex gap-md justify-center" style={{ flexWrap: 'wrap' }}>
@@ -90,3 +89,4 @@ function App() {
 }
 
 export default App;
+
