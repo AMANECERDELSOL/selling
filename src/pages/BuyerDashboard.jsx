@@ -173,15 +173,28 @@ export default function BuyerDashboard() {
                         <div key={product.id} className="card">
                             <div style={{
                                 height: '200px',
-                                background: 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)',
+                                background: 'var(--glass-bg)',
                                 borderRadius: 'var(--radius-md)',
                                 marginBottom: 'var(--spacing-md)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                fontSize: '3rem'
+                                overflow: 'hidden',
+                                border: '1px solid var(--glass-border)'
                             }}>
-                                🎁
+                                {product.image_url ? (
+                                    <img
+                                        src={product.image_url}
+                                        alt={product.name}
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                        onError={(e) => {
+                                            e.target.onerror = null;
+                                            e.target.src = 'https://i.postimg.cc/m2v6mXmX/placeholder.png'; // Fallback to a postimage placeholder
+                                        }}
+                                    />
+                                ) : (
+                                    <span style={{ fontSize: '3rem' }}>🎁</span>
+                                )}
                             </div>
 
                             <span className="badge badge-primary mb-sm">{product.category_name}</span>
@@ -210,6 +223,17 @@ export default function BuyerDashboard() {
                             <p className="mt-sm" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                                 Stock: {product.stock}
                             </p>
+
+                            {/* Botón de consulta por Telegram */}
+                            <a
+                                href={`https://t.me/PythonUserandC?text=${encodeURIComponent(`Hola, tengo una consulta sobre el producto: ${product.name} - $${product.price.toFixed(2)}`)}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="btn btn-outline btn-small w-full mt-sm"
+                                style={{ textDecoration: 'none' }}
+                            >
+                                💬 Consultar por Telegram
+                            </a>
                         </div>
                     ))}
                 </div>
@@ -444,13 +468,29 @@ export default function BuyerDashboard() {
                             <div>
                                 <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '4px' }}>Siguiente Paso:</label>
                                 <p style={{ fontSize: '0.9rem', lineHeight: '1.4' }}>
-                                    Envía tu comprobante de pago y tu ID de orden directamente <strong>a tu vendedor</strong> o a nuestro Telegram oficial.
+                                    Envía tu comprobante de pago y tu ID de orden <strong>a tu vendedor</strong> o a nuestro soporte oficial.
                                 </p>
+
+                                {/* Aviso de problemas con pago USDT */}
+                                <div className="glass-card mt-md" style={{ padding: 'var(--spacing-sm)', background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
+                                    <p style={{ fontSize: '0.85rem', color: 'var(--warning)', marginBottom: 'var(--spacing-xs)' }}>
+                                        ⚠️ ¿Problemas con el pago en USDT?
+                                    </p>
+                                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                                        Si no puedes realizar el pago en USDT, contacta a tu vendedor o a nuestro soporte para opciones alternativas.
+                                    </p>
+                                </div>
+
+                                {/* Botón de soporte de pago */}
                                 <a href="https://t.me/PythonUserandC" target="_blank" rel="noopener noreferrer"
-                                    className="btn btn-primary w-full mt-sm"
+                                    className="btn btn-primary w-full mt-md"
                                     style={{ display: 'block', textAlign: 'center', textDecoration: 'none' }}>
-                                    ✈️ Contactar Soporte
+                                    ✈️ Soporte de Pago
                                 </a>
+
+                                <p className="mt-sm" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center' }}>
+                                    Contacte a su vendedor o a soporte para cualquier duda
+                                </p>
                             </div>
                         </div>
 
@@ -463,5 +503,3 @@ export default function BuyerDashboard() {
         </div>
     );
 }
-
-
