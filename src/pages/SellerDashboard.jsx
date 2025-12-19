@@ -434,32 +434,58 @@ export default function SellerDashboard() {
                                         </div>
 
                                         <div className="mb-md">
-                                            <label className="form-label">URL de la Imagen *</label>
+                                            <label className="form-label">URL de la Imagen (Postimage) *</label>
                                             <input
                                                 type="url"
                                                 name="image_url"
                                                 className="form-input"
-                                                placeholder="https://ejemplo.com/imagen.jpg"
+                                                placeholder="https://i.postimg.cc/xxxxx/imagen.jpg"
                                                 value={productForm.image_url}
                                                 onChange={handleProductFormChange}
                                                 required
                                             />
-                                            <small style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-                                                Pega la URL completa de la imagen del producto
-                                            </small>
+                                            <div style={{ marginTop: 'var(--spacing-xs)' }}>
+                                                <small style={{ color: 'var(--text-muted)', fontSize: '0.875rem', display: 'block' }}>
+                                                    📷 Sube tu imagen a <a href="https://postimages.org/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)' }}>postimages.org</a> y pega el "Direct link"
+                                                </small>
+                                                <small style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'block', marginTop: '4px' }}>
+                                                    💡 Tip: El link debe empezar con "https://i.postimg.cc/"
+                                                </small>
+                                            </div>
                                             {productForm.image_url && (
-                                                <div className="mt-sm">
+                                                <div className="mt-md" style={{
+                                                    padding: 'var(--spacing-sm)',
+                                                    background: 'var(--glass-bg)',
+                                                    borderRadius: '12px',
+                                                    border: '1px solid var(--glass-border)'
+                                                }}>
+                                                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: 'var(--spacing-xs)' }}>
+                                                        Vista previa:
+                                                    </p>
                                                     <img
                                                         src={productForm.image_url}
                                                         alt="Preview"
                                                         style={{
-                                                            maxWidth: '200px',
-                                                            maxHeight: '200px',
+                                                            width: '100%',
+                                                            maxHeight: '250px',
                                                             borderRadius: '8px',
-                                                            objectFit: 'cover'
+                                                            objectFit: 'contain',
+                                                            backgroundColor: '#000'
                                                         }}
-                                                        onError={(e) => e.target.style.display = 'none'}
+                                                        onError={(e) => {
+                                                            e.target.style.display = 'none';
+                                                            e.target.nextSibling.style.display = 'block';
+                                                        }}
                                                     />
+                                                    <p style={{
+                                                        display: 'none',
+                                                        color: 'var(--error)',
+                                                        fontSize: '0.875rem',
+                                                        textAlign: 'center',
+                                                        padding: 'var(--spacing-md)'
+                                                    }}>
+                                                        ⚠️ No se pudo cargar la imagen. Verifica que el link sea correcto.
+                                                    </p>
                                                 </div>
                                             )}
                                         </div>
