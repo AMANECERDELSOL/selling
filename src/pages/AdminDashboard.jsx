@@ -21,8 +21,9 @@ export default function AdminDashboard() {
 
     // Seller form
     const [showSellerForm, setShowSellerForm] = useState(false);
+    const [editingSeller, setEditingSeller] = useState(null);
     const [sellerForm, setSellerForm] = useState({
-        email: '', password: '', binance_wallet: ''
+        username: '', email: '', password: '', binance_wallet: '', earnings: '0'
     });
 
     useEffect(() => {
@@ -131,27 +132,62 @@ export default function AdminDashboard() {
     const handleCreateSeller = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch(`${API_URL}/api/admin/sellers`, {
-                method: 'POST',
+            const url = editingSeller 
+                ? `${API_URL}/api/admin/sellers/${editingSeller.id}`
+                : `${API_URL}/api/admin/sellers`;
+            
+            const method = editingSeller ? 'PUT' : 'POST';
+            
+            const payload = {
+                username: sellerForm.username,
+                email: sellerForm.email,
+                binance_wallet: sellerForm.binance_wallet
+            };
+            
+            // Solo enviar password si tiene valor
+            if (sellerForm.password) {
+                payload.password = sellerForm.password;
+            }
+            
+            // Si es edición, enviar las ganancias
+            if (editingSeller) {
+                payload.earnings = parseFloat(sellerForm.earnings) || 0;
+            }
+            
+            const response = await fetch(url, {
+                method,
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(sellerForm)
+                body: JSON.stringify(payload)
             });
 
             if (response.ok) {
-                alert('Vendedor creado exitosamente');
+                alert(editingSeller ? 'Vendedor actualizado exitosamente' : 'Vendedor creado exitosamente');
                 setShowSellerForm(false);
-                setSellerForm({ email: '', password: '', binance_wallet: '' });
+                setEditingSeller(null);
+                setSellerForm({ username: '', email: '', password: '', binance_wallet: '', earnings: '0' });
                 fetchSellers();
             } else {
                 const data = await response.json();
-                alert(data.error || 'Error al crear vendedor');
+                alert(data.error || 'Error al guardar vendedor');
             }
         } catch (error) {
-            alert('Error al crear vendedor');
+            alert('Error al guardar vendedor');
         }
+    };
+
+    const handleEditSeller = (seller) => {
+        setEditingSeller(seller);
+        setSellerForm({
+            username: seller.username || '',
+            email: seller.email,
+            password: '',
+            binance_wallet: seller.binance_wallet || '',
+            earnings: seller.earnings?.toString() || '0'
+        });
+        setShowSellerForm(true);
     };
 
     const handleDeleteProduct = async (id) => {
@@ -428,19 +464,32 @@ export default function AdminDashboard() {
                         <div className="grid grid-cols-2 gap-md">
                             {sellers.map(seller => (
                                 <div key={seller.id} className="card">
-                                    <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: 'var(--spacing-sm)' }}>
-                                        {seller.email}
-                                    </h3>
+                                    <div className="flex justify-between items-center mb-sm">
+                                        <div>
+                                            <h3 style={{ fontSize: '1.125rem', fontWeight: '600' }}>
+                                                {seller.username || 'Sin nombre'}
+                                            </h3>
+                                            <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+                                                {seller.email}
+                                            </p>
+                                        </div>
+                                        <span className={`badge ${seller.is_active ? 'badge-success' : 'badge-error'}`}>
+                                            {seller.is_active ? 'Activo' : 'Inactivo'}
+                                        </span>
+                                    </div>
                                     <div className="glass-card mb-md" style={{ padding: 'var(--spacing-sm)' }}>
                                         <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                                            <div>Ganancias: <strong style={{ color: 'var(--primary)' }}>${seller.earnings.toFixed(2)}</strong></div>
-                                            <div>Órdenes: <strong>{seller.order_count}</strong></div>
-                                            <div>Ventas: <strong>${seller.total_sales.toFixed(2)}</strong></div>
+                                            <div>Ganancias: <strong style={{ color: 'var(--primary)', fontSize: '1.1rem' }}>${seller.earnings?.toFixed(2) || '0.00'}</strong></div>
+                                            <div>Órdenes: <strong>{seller.order_count || 0}</strong></div>
+                                            <div>Ventas: <strong>${seller.total_sales?.toFixed(2) || '0.00'}</strong></div>
                                         </div>
                                     </div>
-                                    <span className={`badge ${seller.is_active ? 'badge-success' : 'badge-error'}`}>
-                                        {seller.is_active ? 'Activo' : 'Inactivo'}
-                                    </span>
+                                    <button
+                                        className="btn btn-outline btn-small w-full"
+                                        onClick={() => handleEditSeller(seller)}
+                                    >
+                                        ✏️ Editar Vendedor
+                                    </button>
                                 </div>
                             ))}
                         </div>
@@ -453,29 +502,47 @@ export default function AdminDashboard() {
                             background: 'rgba(0, 0, 0, 0.8)', zIndex: 2000,
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             padding: 'var(--spacing-md)'
-                        }} onClick={() => setShowSellerForm(false)}>
+                        }} onClick={() => { setShowSellerForm(false); setEditingSeller(null); }}>
                             <div className="glass-card fade-in" onClick={(e) => e.stopPropagation()}
-                                style={{ width: '100%', maxWidth: '500px' }}>
-                                <h2 className="mb-lg" style={{ fontSize: '1.5rem', fontWeight: '700' }}>Nuevo Vendedor</h2>
+                                style={{ width: '100%', maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto' }}>
+                                <h2 className="mb-lg" style={{ fontSize: '1.5rem', fontWeight: '700' }}>
+                                    {editingSeller ? 'Editar Vendedor' : 'Nuevo Vendedor'}
+                                </h2>
                                 <form onSubmit={handleCreateSeller}>
+                                    <div className="form-group">
+                                        <label className="form-label">Nombre de Usuario *</label>
+                                        <input type="text" className="form-input" required
+                                            placeholder="Ej: vendedor_juan"
+                                            value={sellerForm.username} onChange={(e) => setSellerForm({ ...sellerForm, username: e.target.value })} />
+                                    </div>
                                     <div className="form-group">
                                         <label className="form-label">Email *</label>
                                         <input type="email" className="form-input" required
                                             value={sellerForm.email} onChange={(e) => setSellerForm({ ...sellerForm, email: e.target.value })} />
                                     </div>
                                     <div className="form-group">
-                                        <label className="form-label">Contraseña *</label>
-                                        <input type="password" className="form-input" required
+                                        <label className="form-label">{editingSeller ? 'Nueva Contraseña (dejar vacío para mantener)' : 'Contraseña *'}</label>
+                                        <input type="password" className="form-input" required={!editingSeller}
                                             value={sellerForm.password} onChange={(e) => setSellerForm({ ...sellerForm, password: e.target.value })} />
                                     </div>
+                                    {editingSeller && (
+                                        <div className="form-group">
+                                            <label className="form-label">Ganancias ($)</label>
+                                            <input type="number" step="0.01" className="form-input"
+                                                value={sellerForm.earnings} onChange={(e) => setSellerForm({ ...sellerForm, earnings: e.target.value })} />
+                                            <small style={{ color: 'var(--text-muted)' }}>Modifica las ganancias del vendedor</small>
+                                        </div>
+                                    )}
                                     <div className="form-group">
                                         <label className="form-label">Wallet Binance</label>
                                         <input type="text" className="form-input"
                                             value={sellerForm.binance_wallet} onChange={(e) => setSellerForm({ ...sellerForm, binance_wallet: e.target.value })} />
                                     </div>
                                     <div className="flex gap-md">
-                                        <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Crear Vendedor</button>
-                                        <button type="button" className="btn btn-secondary" onClick={() => setShowSellerForm(false)}>Cancelar</button>
+                                        <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
+                                            {editingSeller ? 'Actualizar Vendedor' : 'Crear Vendedor'}
+                                        </button>
+                                        <button type="button" className="btn btn-secondary" onClick={() => { setShowSellerForm(false); setEditingSeller(null); }}>Cancelar</button>
                                     </div>
                                 </form>
                             </div>
