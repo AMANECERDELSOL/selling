@@ -97,18 +97,5 @@ export default function Login() {
                     </p>
                 </div>
             </div>
-
-            {/* Demo credentials */}
-            <div className="glass-card mt-lg">
-                <h3 className="mb-md" style={{ fontSize: '1rem', color: 'var(--text-secondary)' }}>
-                    Credenciales de Demo:
-                </h3>
-                <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-                    <p><strong>Super Admin:</strong> admin@cashout.com / Admin123!</p>
-                    <p className="mt-sm">Puedes crear vendedores desde el panel de admin</p>
-                    <p className="mt-sm">Los compradores pueden auto-registrarse</p>
-                </div>
-            </div>
-        </div>
-    );
+            );
 }
